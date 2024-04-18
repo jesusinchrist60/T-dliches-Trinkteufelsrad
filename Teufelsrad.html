@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TÖDLICHES TRINKTEUFELSRAD</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+  }
+  #circle {
+    width: 200px;
+    height: 200px;
+    background-color: lightgray;
+    border-radius: 50%;
+    margin: 50px auto;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+  }
+  #categories {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .letter {
+    display: inline-block;
+    padding: 15px 20px; /* Größere Polsterung für größere Buchstabenfelder */
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin: 5px;
+    cursor: pointer;
+  }
+  .letter-row {
+    margin-bottom: 10px; /* Abstand zwischen den Zeilen */
+  }
+  #click-counter {
+    font-weight: bold;
+    color: darkgreen;
+    text-align: center;
+    margin-top: 20px;
+  }
+  #end-timer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-weight: bold;
+    font-size: 20px;
+    color: red;
+    display: none;
+  }
+  .popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border: 2px solid #000;
+    z-index: 1000;
+  }
+  .popup-content {
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1 style="text-align:center;">TÖDLICHES TRINKTEUFELSRAD</h1>
+
+<div id="circle" onclick="showCategory()">Klicke hier<br>für eine Kategorie</div>
+
+<div id="categories"></div>
+
+<div id="click-counter">Klicks: <span id="clicks">0</span></div>
+
+<div id="end-timer"></div>
+
+<div id="popup" class="popup">
+  <div class="popup-content">
+    <h2>Runde beendet!</h2>
+    <p>Klicks: <span id="popup-clicks">0</span></p>
+    <button onclick="resetGame()">Neue Runde starten</button>
+  </div>
+</div>
+
+<script>
+  // Array der Kategorien
+  var categories = [
+    "Beleidigungen", "Städte in Deutschland", "Städte in Frankreich", "Städte in England",
+    "Bundesstaaten in der USA", "Fast-Food-Ketten", "Körperteile", "Kleidungsmarken",
+    "Milliardäre (Nachname)", "Podcasts", "Shots", "Illegale Drogen", "Städte in Italien",
+    "Zeitungen", "Malle-Sänger (Nachname oder Künstlername)", "Malle-Lieder", "Musikgruppen",
+    "Harry Potter Charaktere", "Gesellschaftsspiele", "Trinkspiele",
+    "Ehemalige Fußballprofis (Nachname)", "Aktuelle Fußballprofis (Nachname)",
+    "Fußballvereine (Stadtname)", "Schauspieler (Nachname)", "Sänger (Nachname)",
+    "Sportler (ohne Fußball)", "TV-Serien", "Social-Media-Plattform", "Unternehmen",
+    "Länder in Europa", "Länder in Afrika", "Länder in Asien", "Länder in Südamerika",
+    "Länder in Ozeanien", "Länder in Nord- und Mittelamerika", "Zeichentrickfiguren (Vor- oder Nachname)",
+    "Politiker (Nachname)", "Pornostars (Nachname)", "Zigarettenmarken", "Obstsorten", "Gemüse",
+    "Tiere", "Promis (Nachname)", "Porno-Kategorie", "Biermarken", "Alkoholische Getränke"
+  ];
+
+  // Buchstaben von A bis Z
+  var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+  // Zufällige Kategorie auswählen
+  function selectCategory() {
+    var index = Math.floor(Math.random() * categories.length);
+    var category = categories[index];
+    categories.splice(index, 1); // Entferne die ausgewählte Kategorie
+    return category;
+  }
+
+  // Kategorie anzeigen
+  function showCategory() {
+    var category = selectCategory();
+    document.getElementById("circle").textContent = category;
+    var categoriesElement = document.getElementById("categories");
+    categoriesElement.innerHTML = ""; // Leeren vor dem Hinzufügen der Buchstaben
+    var letterRow1 = document.createElement("div");
+    letterRow1.classList.add("letter-row");
+    var letterRow2 = document.createElement("div");
+    letterRow2.classList.add("letter-row");
+    for (var i = 0; i < alphabet.length; i++) {
+      var letterElement = document.createElement("div");
+      letterElement.textContent = alphabet[i];
+      letterElement.classList.add("letter");
+      letterElement.onclick = function() {
+        clickLetter(this);
+      };
+      if (i < 13) {
+        letterRow1.appendChild(letterElement);
+      } else {
+        letterRow2.appendChild(letterElement);
+      }
+    }
+    categoriesElement.appendChild(letterRow1);
+    categoriesElement.appendChild(letterRow2);
+    startTimers();
+  }
+
+  // Klickzähler
+  var clicks = 0;
+  function clickLetter(letter) {
+    letter.style.backgroundColor = "#ccc"; // Grau einfärben
+    clicks++;
+    document.getElementById("clicks").textContent = clicks;
+  }
+
+  // Timer für das Ende der Runde
+  var timerInterval;
+  function startTimers() {
+    var endTimer = Math.floor(Math.random() * (50000 - 10000 + 1)) + 10000; // Zufällige Zeit zwischen 10 und 50 Sekunden
+    var timerElement = document.getElementById("end-timer");
+    timerElement.textContent = "00:00";
+    timerElement.style.display = "block";
+    var seconds = 0;
+    clearInterval(timerInterval); // Vorherigen Timer löschen
+    timerInterval = setInterval(function() {
+      seconds++;
+      timerElement.textContent = formatTime(seconds);
+    }, 1000);
+    setTimeout(function() {
+      clearInterval(timerInterval); // Timer stoppen, wenn die Runde endet
+      endRound();
+    }, endTimer);
+  }
+
+  // Timer-Formatierung
+  function formatTime(seconds) {
+    var mins = Math.floor(seconds / 60);
+    var secs = seconds % 60;
+    return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+  }
+
+  // Rundenende
+  function endRound() {
+    document.body.style.backgroundColor = "red";
+    var endTimer = document.getElementById("end-timer");
+    endTimer.textContent = "Runde beendet!";
+    var clicks = document.getElementById("clicks").textContent;
+    var popupClicks = document.getElementById("popup-clicks");
+    popupClicks.textContent = clicks;
+    var popup = document.getElementById("popup");
+    popup.style.display = "block";
+  }
+
+  // Spiel zurücksetzen
+  function resetGame() {
+    document.body.style.backgroundColor = "#f9f9f9";
+    var endTimer = document.getElementById("end-timer");
+    endTimer.style.display = "none";
+    document.getElementById("circle").textContent = "Klicke hier\nfür eine Kategorie";
+    document.getElementById("categories").innerHTML = "";
+    document.getElementById("clicks").textContent = "0";
+    clicks = 0;
+    var popup = document.getElementById("popup");
+    popup.style.display = "none";
+    showCategory();
+  }
+
+</script>
+
+</body>
+</html>
